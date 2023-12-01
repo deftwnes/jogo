@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300&display=swap" rel="stylesheet">
+    <link rel="icon" href="jogo.png"/>
+    <title>Jogo da velha</title>
+</head>
+<body>
+
+    <h1>Jogo da Velha</h1>
+
+    <div id="board"></div>
+
+    <div id="status">Vez do Jogador X</div>
+
+    <div id="win-screen" class="result-screen">
+        Parabéns! Você venceu!
+        <button id="play-again-btn" onclick="resetGame()">Jogar Novamente</button>
+    </div>
+
+    <div id="lose-screen" class="result-screen">
+        Que pena! Você perdeu.
+        <button id="play-again-btn" onclick="resetGame()">Tentar Novamente</button>
+    </div>
+
+    <script>
+        let currentPlayer = 'X';
+    let gameBoard = ['', '', '', '', '', '', '', '', ''];
+    let gameActive = true;
+
+    const boardElement = document.getElementById('board');
+    const statusElement = document.getElementById('status');
+    const winScreen = document.getElementById('win-screen');
+    const loseScreen = document.getElementById('lose-screen');
+    const playAgainBtn = document.getElementById('play-again-btn');
+
+    function createBoard() {
+        for (let i = 0; i < 9; i++) {
+            const cell = document.createElement('div');
+            cell.classList.add('cell');
+            cell.setAttribute('data-index', i);
+            cell.setAttribute('data-content', ''); 
+            cell.addEventListener('click', handleCellClick);
+            boardElement.appendChild(cell);
+        }
+    }
+
+    function handleCellClick(event) {
+        const clickedCellIndex = event.target.getAttribute('data-index');
+
+        if (gameBoard[clickedCellIndex] === '' && gameActive) {
+            gameBoard[clickedCellIndex] = currentPlayer;
+            event.target.classList.add('disabled');
+            event.target.setAttribute('data-content', currentPlayer); 
+            checkForWinner();
+            togglePlayer();
+        }
+    }
+
+    function togglePlayer() {
+        currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+        statusElement.textContent = `Vez do Jogador ${currentPlayer}`;
+    }
+
+    function checkForWinner() {
+        const winPatterns = [
+            [0, 1, 2],
+            [3, 4, 5],
+            [6, 7, 8],
+            [0, 3, 6],
+            [1, 4, 7],
+            [2, 5, 8],
+            [0, 4, 8],
+            [2, 4, 6],
+        ];
+
+        for (const pattern of winPatterns) {
+            const [a, b, c] = pattern;
+            if (gameBoard[a] !== '' && gameBoard[a] === gameBoard[b] && gameBoard[a] === gameBoard[c]) {
+                gameActive = false;
+                winScreen.style.display = 'block';
+                playAgainBtn.style.display = 'block';
+                return;
+            }
+        }
+
+        if (!gameBoard.includes('')) {
+            gameActive = false;
+            loseScreen.style.display = 'block';
+            playAgainBtn.style.display = 'block';
+        }
+    }
+
+    function resetGame() {
+        currentPlayer = 'X';
+        gameBoard = ['', '', '', '', '', '', '', '', ''];
+        gameActive = true;
+
+        const cells = document.querySelectorAll('.cell');
+        cells.forEach(cell => {
+            cell.textContent = '';
+            cell.classList.remove('disabled');
+            cell.setAttribute('data-content', ''); 
+        });
+
+        winScreen.style.display = 'none';
+        loseScreen.style.display = 'none';
+        playAgainBtn.style.display = 'none';
+
+        statusElement.textContent = `Vez do Jogador ${currentPlayer}`;
+    }
+
+    createBoard();
+    </script>
+</body>
+</html>
